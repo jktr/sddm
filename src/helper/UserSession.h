@@ -26,6 +26,10 @@
 #include <QtCore/QString>
 #include <QtCore/QProcess>
 
+#ifdef USE_PAM
+#include "backend/PamHandle.h"
+#endif
+
 namespace SDDM {
     class HelperApp;
     class UserSession : public QProcess
@@ -39,6 +43,10 @@ namespace SDDM {
 
         void setPath(const QString &path);
         QString path() const;
+
+#ifdef USE_PAM
+        void setPamHandle(PamHandle *pam);
+#endif
 
         /*!
          \brief Sets m_cachedProcessId. Needed for getting the PID of a finished UserSession
@@ -59,6 +67,9 @@ namespace SDDM {
     private:
         QString m_path { };
         qint64 m_cachedProcessId;
+#ifdef USE_PAM
+        PamHandle *m_pam { nullptr };
+#endif
     };
 }
 

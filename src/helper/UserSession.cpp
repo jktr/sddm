@@ -71,6 +71,11 @@ namespace SDDM {
         return m_path;
     }
 
+#ifdef USE_PAM
+    void UserSession::setPamHandle(PamHandle *pam) {
+      m_pam = pam;
+    }
+#endif
     void UserSession::setupChildProcess() {
         // Session type
         QString sessionType = processEnvironment().value(QStringLiteral("XDG_SESSION_TYPE"));
@@ -154,6 +159,16 @@ namespace SDDM {
             qCritical() << "initgroups(" << pw.pw_name << ", " << pw.pw_gid << ") failed for user: " << username;
             exit(Auth::HELPER_OTHER_ERROR);
         }
+
+#ifdef USE_PAM
+        if (m_pam != nullptr) {
+           if (!m_pam->setCred(PAM_ESTABLISH_CRED)) {
+                qCritical() << "pam_setcred(PAM_ESTABLISH_CRED) failed for user: " << username;
+                exit(Auth::HELPER_OTHER_ERROR);
+            }
+        }
+#endif // USE_PAM
+
         if (setuid(pw.pw_uid) != 0) {
             qCritical() << "setuid(" << pw.pw_uid << ") failed for user: " << username;
             exit(Auth::HELPER_OTHER_ERROR);

@@ -271,6 +271,9 @@ namespace SDDM {
         }
         sessionEnv.insert(m_pam->getEnv());
         m_app->session()->setProcessEnvironment(sessionEnv);
+
+        m_app->session()->setPamHandle(m_pam);
+
         return Backend::openSession();
     }
 
